@@ -1,1 +1,19 @@
-<p>results works!</p>
+<div class="container">
+    <h1>Resultados de la Consulta</h1>
+  
+    <p><strong>Ciudad seleccionada:</strong> {{ city }}</p>
+    <p><strong>Presupuesto ingresado:</strong> COP {{ budget }}</p>
+  
+    <div *ngIf="weather">
+      <p><strong>Clima actual:</strong> {{ weather.temperature }}°C</p>
+      <p><strong>Moneda local:</strong> {{ currencyName }} ({{ currencySymbol }})</p>
+      <p><strong>Presupuesto convertido:</strong> {{ convertedBudget }} {{ currencySymbol }}</p>
+      <p><strong>Tasa de cambio:</strong> 1 COP = {{ exchangeRate }} {{ currencySymbol }}</p>
+    </div>
+  
+    <button (click)="goBack()">Volver</button>
+  </div>
+  
+  
+  
+  

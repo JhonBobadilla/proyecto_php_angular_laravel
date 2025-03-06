@@ -1,1 +1,19 @@
-<p>home works!</p>
+<div class="container">
+    <h1>Consulta de Clima y Presupuesto</h1>
+  
+    <label for="city">Selecciona una ciudad:</label>
+    <select [(ngModel)]="selectedCity">
+      <option value="london">Londres</option>
+      <option value="new-york">Nueva York</option>
+      <option value="paris">París</option>
+      <option value="tokyo">Tokio</option>
+      <option value="madrid">Madrid</option>
+    </select>
+  
+    <label for="budget">Presupuesto en COP:</label>
+    <input type="number" [(ngModel)]="budget" placeholder="Ingrese su presupuesto">
+  
+    <button (click)="consultar()">Consultar</button>
+  </div>
+  
+  
