@@ -129,6 +129,7 @@ export class ResultsComponent {
 
   goBack() {
     this.router.navigate(['/']);
+    
   }
 }
 
