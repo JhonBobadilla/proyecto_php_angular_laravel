@@ -22,90 +22,108 @@ export class ResultsComponent {
 
   constructor(private route: ActivatedRoute, private router: Router, private apiService: ApiService) {
     this.route.queryParams.subscribe(params => {
-      console.log("🟢 Parámetros recibidos en Results:\n", JSON.stringify(params, null, 2));
+      console.log("🟢 Parámetros recibidos en Results:", params);
 
-      this.city = this.formatCity(params['city']); // ✅ Se corrige el formato de la ciudad antes de llamar la API
+      this.city = this.formatCity(params['city']);
       this.budget = Number(params['budget']);
 
-      if (this.city && this.budget > 0) {
-        this.fetchWeather();
-        this.fetchCurrency();
-      } else {
+      if (!this.validarEntrada()) {
         alert("❌ Datos inválidos. Regresando a inicio.");
         this.router.navigate(['/']);
+        return;
       }
+
+      this.fetchWeather();
+      this.fetchCurrency();
     });
   }
 
-  // ✅ Función para corregir nombres de ciudades antes de hacer la solicitud a la API
-  formatCity(city: string): string {
+  /**
+   * 🔹 Validar entrada antes de llamar APIs
+   */
+  private validarEntrada(): boolean {
+    return this.city.trim() !== '' && this.budget > 0 && !isNaN(this.budget);
+  }
+
+  /**
+   * 🔹 Formatear el nombre de la ciudad para que coincida con las APIs
+   */
+  private formatCity(city: string): string {
     const cityMap: { [key: string]: string } = {
-      'new-york': 'New York', 
+      'new-york': 'New York',
       'london': 'London',
       'paris': 'Paris',
       'tokyo': 'Tokyo',
       'madrid': 'Madrid'
     };
-    return cityMap[city.toLowerCase()] || city; // Si la ciudad no está en la lista, devolver la original
+    return cityMap[city.toLowerCase()] || city;
   }
 
-  fetchWeather() {
+  /**
+   * 🔹 Obtener datos climáticos
+   */
+  private fetchWeather(): void {
     console.log("🌍 Buscando clima para:", this.city);
-    
+
     this.apiService.getWeather(this.city).subscribe(
       (data) => {
-        console.log("✅ Respuesta de API Clima:\n", JSON.stringify(data, null, 2));
+        console.log("✅ Respuesta de API Clima:", data);
 
-        if (data && data.main && data.weather) {
+        if (data?.main && data?.weather) {
           this.weather = {
-            temperature: data.main.temp, // 🌡️ Temperatura real
-            description: data.weather[0].description, // 🌦️ Descripción del clima
-            icon: `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png` // 🖼️ Ícono del clima
+            temperature: data.main.temp,
+            description: data.weather[0].description,
+            icon: `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`
           };
         } else {
           console.error("❌ Error: Datos de clima no encontrados.");
         }
       },
-      (error) => {
-        console.error("❌ Error obteniendo el clima:\n", JSON.stringify(error, null, 2));
-      }
+      (error) => console.error("❌ Error obteniendo el clima:", error)
     );
   }
 
-  fetchCurrency() {
-    const currencyCode = this.getCurrencyCode(this.city); // ✅ Obtener el código de la moneda según la ciudad
+  /**
+   * 🔹 Obtener tasa de cambio de moneda y conversión de presupuesto
+   */
+  private fetchCurrency(): void {
+    const currencyCode = this.getCurrencyCode(this.city);
 
     this.apiService.getExchangeRate('COP', currencyCode).subscribe(
       (data) => {
-        console.log("✅ Respuesta de API Cambio de Moneda:\n", JSON.stringify(data, null, 2));
+        console.log("✅ Respuesta de API Cambio de Moneda:", data);
 
-        if (data && data.conversion_rates && data.conversion_rates[currencyCode]) {
-          this.currencyName = this.getCurrencyName(this.city); // ✅ Obtener el nombre de la moneda
-          this.currencySymbol = this.getCurrencySymbol(this.city); // ✅ Obtener el símbolo de la moneda
-          this.exchangeRate = Number(data.conversion_rates[currencyCode].toFixed(5)); // ✅ Redondeo correcto
-          this.convertedBudget = Number((this.budget * this.exchangeRate).toFixed(2)); // ✅ Redondeo a 2 decimales
+        if (data?.conversion_rates?.[currencyCode]) {
+          this.currencyName = this.getCurrencyName(this.city);
+          this.currencySymbol = this.getCurrencySymbol(this.city);
+          this.exchangeRate = Number(data.conversion_rates[currencyCode].toFixed(5));
+          this.convertedBudget = Number((this.budget * this.exchangeRate).toFixed(2));
         } else {
           console.error("❌ Error: No se encontró la tasa de cambio.");
         }
       },
-      (error) => {
-        console.error("❌ Error obteniendo la tasa de cambio:\n", JSON.stringify(error, null, 2));
-      }
+      (error) => console.error("❌ Error obteniendo la tasa de cambio:", error)
     );
   }
 
-  getCurrencyCode(city: string): string {
+  /**
+   * 🔹 Obtener código de moneda según la ciudad
+   */
+  private getCurrencyCode(city: string): string {
     const currencyMap: { [key: string]: string } = {
-      'london': 'GBP',  // Libra Esterlina
-      'new york': 'USD', // Dólar Americano
-      'paris': 'EUR',    // Euro
-      'tokyo': 'JPY',    // Yen Japonés
-      'madrid': 'EUR'    // Euro
+      'london': 'GBP',
+      'new york': 'USD',
+      'paris': 'EUR',
+      'tokyo': 'JPY',
+      'madrid': 'EUR'
     };
-    return currencyMap[city.toLowerCase()] || 'EUR'; // Si no se encuentra, usar EUR por defecto
+    return currencyMap[city.toLowerCase()] || 'EUR';
   }
 
-  getCurrencyName(city: string): string {
+  /**
+   * 🔹 Obtener nombre de la moneda según la ciudad
+   */
+  private getCurrencyName(city: string): string {
     const currencyNames: { [key: string]: string } = {
       'london': 'Libra Esterlina',
       'new york': 'Dólar Americano',
@@ -116,7 +134,10 @@ export class ResultsComponent {
     return currencyNames[city.toLowerCase()] || 'Euro';
   }
 
-  getCurrencySymbol(city: string): string {
+  /**
+   * 🔹 Obtener símbolo de la moneda según la ciudad
+   */
+  private getCurrencySymbol(city: string): string {
     const currencySymbols: { [key: string]: string } = {
       'london': '£',
       'new york': '$',
@@ -127,9 +148,10 @@ export class ResultsComponent {
     return currencySymbols[city.toLowerCase()] || '€';
   }
 
-  goBack() {
+  /**
+   * 🔹 Regresar a la pantalla de inicio
+   */
+  goBack(): void {
     this.router.navigate(['/']);
-    
   }
 }
-
