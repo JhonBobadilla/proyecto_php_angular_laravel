@@ -13,10 +13,9 @@ class TravelController extends Controller
      */
     public function index()
     {
-        $travels = Travel::all();
         return response()->json([
             'message' => 'Lista de consultas obtenida con éxito',
-            'data' => $travels
+            'data' => Travel::all()
         ], 200);
     }
 
@@ -39,7 +38,7 @@ class TravelController extends Controller
         // Guardar en la base de datos
         $travel = Travel::create($validated);
 
-        // Retornar la respuesta con los datos guardados
+        // Retornar la respuesta con los datos guardados en JSON
         return response()->json([
             'message' => 'Consulta guardada exitosamente',
             'data' => $travel
@@ -70,6 +69,7 @@ class TravelController extends Controller
         try {
             $travel = Travel::findOrFail($id);
 
+            // Validar solo los campos enviados
             $validated = $request->validate([
                 'city' => 'sometimes|string|max:255',
                 'budget' => 'sometimes|numeric|min:1',
@@ -106,4 +106,5 @@ class TravelController extends Controller
         }
     }
 }
+
 
