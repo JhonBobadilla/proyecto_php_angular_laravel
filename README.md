@@ -32,6 +32,6 @@ Instalación y Configuración
 
 Requisitos previos
 
-Node.js y Angular CLI instalados
+Angular CLI instalados
 PHP 7.x y Laravel
 MySQL
