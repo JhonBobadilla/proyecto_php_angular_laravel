@@ -10,6 +10,7 @@ class Travel extends Model
     use HasFactory;
 
     protected $table = 'travels'; // Especificamos el nombre de la tabla
+    
     protected $fillable = [
         'city',
         'budget',
@@ -20,4 +21,5 @@ class Travel extends Model
         'currency_symbol'
     ];
 }
+
 
